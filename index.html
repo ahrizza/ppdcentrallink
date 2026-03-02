@@ -242,9 +242,18 @@
             if(res.isConfirmed) {
                 await remove(ref(db_fire, 'employees/' + id));
                 addLog(`Hapus Data: ${k.nama}`);
-            }
+    // 🔥 TAMBAHKAN DI SINI
+    const firebaseConfig = {
+        apiKey: "ISI_DARI_FIREBASE",
+        authDomain: "ISI_DARI_FIREBASE",
+        projectId: "ISI_DARI_FIREBASE",
+        storageBucket: "ISI_DARI_FIREBASE",
+        messagingSenderId: "ISI_DARI_FIREBASE",
+        appId: "ISI_DARI_FIREBASE"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
         };
-
         window.handleImport = async function(input) {
             const file = input.files[0];
             if (!file) return;
