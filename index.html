@@ -236,6 +236,7 @@
     </div> 
 
     <script type="module">
+              import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; // Patch Baru
@@ -567,15 +568,16 @@
         window.toggleSubmenu = function() { document.getElementById('submenu-mon').classList.toggle('show'); document.getElementById('drop-icon').classList.toggle('rotate-180'); };
         window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); };
         window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('editIndex').value = ""; };
-       window.logout = function() {
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+     window.logout = function() {
     const auth = getAuth();
-    signOut(auth).then(() => {
-        localStorage.removeItem('PPD_V7_SESSION');
-        location.reload();
-    }).catch((error) => {
-        console.error("Logout Error:", error);
-    });
+    signOut(auth)
+        .then(() => {
+            localStorage.removeItem('PPD_V7_SESSION');
+            location.reload();
+        })
+        .catch((error) => {
+            console.error("Logout Error:", error);
+        });
 };
         window.updateClock = function() { document.getElementById('liveClock').innerText = new Date().toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); };
 
@@ -623,7 +625,7 @@
         } else {
             // Jika tidak terdeteksi login, paksa kembali ke halaman login
             document.getElementById('login-page').style.display = 'flex';
-            document.getElementById('main-dashboard').style.display = 'none';
+            document.getElementById('main-dashboard').style.display = 'none';   
         }
         lucide.createIcons();
     });
