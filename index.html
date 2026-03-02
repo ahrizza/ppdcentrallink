@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PPD SYSTEM v8.0 - Firebase Real-Time</title>
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -27,6 +28,7 @@
 </head>
 <body>
 
+    <!-- Loader -->
     <div id="loader" class="fixed inset-0 bg-slate-900/50 z-[10000] flex items-center justify-center hidden backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl flex flex-col items-center shadow-2xl">
             <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -34,6 +36,7 @@
         </div>
     </div>
 
+    <!-- Login Page -->
     <div id="login-page" class="fixed inset-0 z-[9999] bg-[#0f172a] flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-[450px] p-12 rounded-[48px] shadow-2xl">
             <div class="text-center mb-8">
@@ -46,12 +49,13 @@
                 <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xs hover:bg-slate-800 transition-all">Masuk Sistem</button>
             </form>
             <div class="mt-6 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                <span>Admin: Ahriza</span>
+                <span>Admin: ahriza@admin.com</span>
                 <span>User: Guest</span>
             </div>
         </div>
     </div>
 
+    <!-- Main Dashboard -->
     <div id="main-dashboard" class="flex h-screen w-full hidden">
         <aside class="sidebar flex flex-col shrink-0">
             <div class="p-10 mb-4 flex items-center gap-4 text-white">
@@ -122,6 +126,7 @@
                     </div>
                 </div>
 
+                <!-- View: Database -->
                 <div id="view-db" class="table-wrapper">
                     <div class="table-scroll">
                         <table class="w-full text-left">
@@ -139,6 +144,7 @@
                     </div>
                 </div>
 
+                <!-- View: Chart -->
                 <div id="view-chart" class="hidden grid grid-cols-12 gap-8 items-start">
                     <div class="col-span-8 bg-white p-12 rounded-[40px] border shadow-sm">
                         <h3 id="chart-label" class="text-2xl font-black text-slate-800 uppercase italic mb-10">-</h3>
@@ -162,6 +168,7 @@
                     <div id="training-selector-list" class="col-span-4 space-y-2 overflow-y-auto max-h-[600px]"></div>
                 </div>
 
+                <!-- View: Matrix -->
                 <div id="view-matrix" class="hidden bg-white rounded-[40px] p-8 border shadow-xl">
                     <div class="overflow-auto max-h-[600px] border rounded-2xl">
                         <table class="w-full text-[10px] border-collapse">
@@ -174,6 +181,7 @@
         </div>
     </div>
 
+    <!-- Modal Log -->
     <div id="modalLog" class="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur flex items-center justify-center hidden p-6">
         <div class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
             <div class="p-8 bg-slate-900 text-white flex justify-between items-center">
@@ -184,6 +192,7 @@
         </div>
     </div>
 
+    <!-- Modal Form -->
     <div id="modalForm" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 hidden">
         <div class="bg-white w-full max-w-6xl rounded-[48px] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
             <div class="bg-[#0f172a] p-8 text-white flex justify-between items-center">
@@ -222,6 +231,7 @@
         </div>
     </div>
 
+    <!-- Modal Preview -->
     <div id="modalPreview" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-10 hidden">
         <div class="bg-white w-full max-w-5xl h-full rounded-[48px] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-8 border-b flex justify-between items-center bg-slate-50">
@@ -235,62 +245,105 @@
         </div>
     </div> 
 
-    <script type="module">
-        window.deleteData = async function(id) {
-            const k = window.db.find(x => x.id == id);
-            const res = await Swal.fire({ title: 'Hapus Data?', text: "Data dihapus permanen dari Firebase!", icon: 'warning', showCancelButton: true });
-            if(res.isConfirmed) {
-                await remove(ref(db_fire, 'employees/' + id));
-                addLog(`Hapus Data: ${k.nama}`);
-    // 🔥 TAMBAHKAN DI SINI
-    const firebaseConfig = {
-        apiKey: "ISI_DARI_FIREBASE",
-        authDomain: "ISI_DARI_FIREBASE",
-        projectId: "ISI_DARI_FIREBASE",
-        storageBucket: "ISI_DARI_FIREBASE",
-        messagingSenderId: "ISI_DARI_FIREBASE",
-        appId: "ISI_DARI_FIREBASE"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+   <script type="module">
+        // 1. IMPORT SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // 2. CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7K05jz-I0l0BghCJ2bc7dLylrRp_sbDM",
+            authDomain: "ppdcentrallink.firebaseapp.com",
+            databaseURL: "https://ppdcentrallink-default-rtdb.firebaseio.com",
+            projectId: "ppdcentrallink",
+            storageBucket: "ppdcentrallink.appspot.com",
+            messagingSenderId: "367285128033",
+            appId: "1:367285128033:web:5d2639077977a46985a9df"
         };
-        window.handleImport = async function(input) {
-            const file = input.files[0];
-            if (!file) return;
+
+        // 3. INIT
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db_fire = getDatabase(app);
+
+        // Global Variables
+        window.db = [];
+        let userSession = null;
+        let myChart = null;
+        let activeChartTr = null;
+        
+        // Placeholder Data (Jika belum ada di Firebase)
+        const TRAINING_DICT = [
+            {id: 'A1', t: 'Safety Induction'}, {id: 'A2', t: 'Fire Fighting'}, 
+            {id: 'B1', t: 'First Aid'}, {id: 'B2', t: 'Confined Space'},
+            {id: 'C1', t: 'Heavy Equip'}, {id: 'C2', t: 'Driving License'}
+        ];
+        const logs = [];
+
+        // 4. LOGIN FUNCTION
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
             document.getElementById('loader').classList.remove('hidden');
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const rows = e.target.result.split(/\r?\n/).filter(r => r.trim() !== "").slice(1);
-                const now = new Date().toLocaleString('id-ID');
-                for(let row of rows) {
-                    const c = row.split(/[,;]/);
-                    if (c.length >= 3) {
-                        const newRef = push(ref(db_fire, 'employees'));
-                        await set(newRef, {
-                            nama: (c[1] || "").replace(/"/g, '').trim().toUpperCase(),
-                            nik: (c[2] || "").replace(/"/g, '').trim(),
-                            sec: (c[3] || "Support").trim(),
-                            jab: (c[4] || "Staff").trim(),
-                            exp: (c[5] || "").trim(),
-                            trs: [], foto: "", ktp: "", sim: "", prm: "",
-                            createdAt: now, updatedAt: now
-                        });
-                    }
-                }
-                addLog(`Import CSV (${rows.length} data)`);
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
+                userSession = { user: userCredential.user.email, role: role };
+                localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login Gagal: " + error.message);
+            } finally {
                 document.getElementById('loader').classList.add('hidden');
-                input.value = '';
-                Swal.fire('Berhasil', 'Data Masuk Link Firebase', 'success');
-            };
-            reader.readAsText(file);
+            }
+        });
+
+        // 5. LOGOUT FUNCTION
+        window.logout = function() {
+            signOut(auth).then(() => {
+                localStorage.removeItem('PPD_V7_SESSION');
+                location.reload();
+            }).catch((error) => {
+                console.error("Logout Error:", error);
+            });
         };
-        // UI Core Logic (Tetap Sama)
-        function addLog(action) {
-            logs.unshift({ time: new Date().toLocaleString('id-ID'), user: userSession.user, action: action });
-            if(logs.length > 50) logs.pop();
-            localStorage.setItem('PPD_V7_LOGS', JSON.stringify(logs));
+
+        // 6. SESSION CHECK
+        function checkSession() {
+            onAuthStateChanged(auth, (user) => {
+                const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
+                if (user && session) {
+                    userSession = session;
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('main-dashboard').style.display = 'flex';
+                    document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
+                    
+                    // Initialize Dashboard
+                    populateTrainingForm(); 
+                    updateCategoryUI(); 
+                    switchTab('db'); 
+                    syncFirebase();
+                } else {
+                    document.getElementById('login-page').style.display = 'flex';
+                    document.getElementById('main-dashboard').style.display = 'none';   
+                }
+                lucide.createIcons();
+            });
         }
 
+        // 7. SYNC DATA
+        window.syncFirebase = function() {
+            onValue(ref(db_fire, 'employees'), (snapshot) => {
+                const data = snapshot.val();
+                window.db = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if (typeof renderTabel === "function") renderTabel();
+            });
+        };
+
+        // 8. RENDER TABLE
         window.renderTabel = function() {
             const body = document.getElementById('db-body');
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -340,6 +393,7 @@
             lucide.createIcons();
         };
 
+        // 9. CHART FUNCTIONS
         window.updateChart = function(trId) {
             document.querySelectorAll('.tr-card').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-50'));
             document.getElementById(`tr-card-${trId}`)?.classList.add('border-blue-500', 'bg-blue-50');
@@ -382,12 +436,14 @@
                     <div class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">${perc}%</div>
                 </div>`;
             }).join('');
-    document.querySelectorAll('.tr-card').forEach(card => {
-    card.addEventListener('click', function() {
-        updateChart(this.dataset.id);
-    });
-});
-};
+            
+            document.querySelectorAll('.tr-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    updateChart(this.dataset.id);
+                });
+            });
+        };
+
         window.renderMatrix = function() {
             const head = document.getElementById('matrix-head');
             const body = document.getElementById('matrix-body');
@@ -401,7 +457,7 @@
                 </tr>`).join('');
         };
 
-        // UI Helpers
+        // 10. UI HELPERS
         window.switchTab = function(tab) {
             const views = ['view-db', 'view-chart', 'view-matrix', 'stats-row', 'action-area'];
             views.forEach(v => document.getElementById(v).classList.add('hidden'));
@@ -489,73 +545,7 @@
         window.toggleSubmenu = function() { document.getElementById('submenu-mon').classList.toggle('show'); document.getElementById('drop-icon').classList.toggle('rotate-180'); };
         window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); };
         window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('editIndex').value = ""; };
-     window.logout = function() {
-    const auth = getAuth();
-    signOut(auth)
-        .then(() => {
-            localStorage.removeItem('PPD_V7_SESSION');
-            location.reload();
-        })
-        .catch((error) => {
-            console.error("Logout Error:", error);
-        });
-};
-        window.updateClock = function() { document.getElementById('liveClock').innerText = new Date().toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); };
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('username').value; 
-    const password = document.getElementById('password').value;
-    
-        document.getElementById('loader').classList.remove('hidden');
-
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // Logic penentuan Role minimal (Sesuaikan email admin Anda)
-            const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
-            
-            userSession = { user: user.email, role: role };
-            localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
-            
-            // checkSession akan dipicu otomatis oleh onAuthStateChanged
-        } catch (error) {
-        console.log("FULL ERROR OBJECT:", error);
-        console.log("ERROR CODE:", error.code);
-        console.log("ERROR MESSAGE:", error.message);
-
-        alert(error.code + " | " + error.message);
-        } finally {
-            document.getElementById('loader').classList.add('hidden');
-        }
-    });
-            function checkSession() {
-        // Memantau perubahan status login dari Firebase Auth
-        onAuthStateChanged(auth, (user) => {
-            const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
-            
-            // Cek apakah user sudah login di Firebase DAN ada data session di local
-            if (user && session) {
-                userSession = session;
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('main-dashboard').style.display = 'flex';
-                document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
-                
-                // Jalankan fungsi inisialisasi dashboard
-                populateTrainingForm(); 
-                updateCategoryUI(); 
-                switchTab('db'); 
-                syncFirebase();
-            } else {
-                // Jika tidak terdeteksi login, paksa kembali ke halaman login
-                document.getElementById('login-page').style.display = 'flex';
-                document.getElementById('main-dashboard').style.display = 'none';   
-            }
-            lucide.createIcons();
-        });
-    }
-
+        
         window.exportToCSV = function() {
             let csv = "NAMA,NIK,SECTION,JABATAN,EXPIRED_DATE\n";
             window.db.forEach(k => csv += `"${k.nama}","${k.nik}","${k.sec}","${k.jab}","${k.exp}"\n`);
@@ -574,8 +564,12 @@
             lucide.createIcons();
         };
 
-        // Init
-        updateClock(); setInterval(updateClock, 1000); checkSession();
+        window.updateClock = function() { document.getElementById('liveClock').innerText = new Date().toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); };
+
+        // INIT
+        updateClock(); 
+        setInterval(updateClock, 1000); 
+        checkSession();
     </script>
 </body>
 </html>
