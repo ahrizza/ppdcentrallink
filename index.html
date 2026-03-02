@@ -591,55 +591,54 @@ import {
     const email = document.getElementById('username').value; 
     const password = document.getElementById('password').value;
     
-    document.getElementById('loader').classList.remove('hidden');
+        document.getElementById('loader').classList.remove('hidden');
 
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-        // Logic penentuan Role minimal (Sesuaikan email admin Anda)
-        const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
-        
-        userSession = { user: user.email, role: role };
-        localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
-        
-        // checkSession akan dipicu otomatis oleh onAuthStateChanged
-    } catch (error) {
-    console.log("FULL ERROR OBJECT:", error);
-    console.log("ERROR CODE:", error.code);
-    console.log("ERROR MESSAGE:", error.message);
-
-    alert(error.code + " | " + error.message);
-}
-    } finally {
-        document.getElementById('loader').classList.add('hidden');
-    }
-});
-        function checkSession() {
-    // Memantau perubahan status login dari Firebase Auth
-    onAuthStateChanged(auth, (user) => {
-        const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
-        
-        // Cek apakah user sudah login di Firebase DAN ada data session di local
-        if (user && session) {
-            userSession = session;
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('main-dashboard').style.display = 'flex';
-            document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
+            // Logic penentuan Role minimal (Sesuaikan email admin Anda)
+            const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
             
-            // Jalankan fungsi inisialisasi dashboard
-            populateTrainingForm(); 
-            updateCategoryUI(); 
-            switchTab('db'); 
-            syncFirebase();
-        } else {
-            // Jika tidak terdeteksi login, paksa kembali ke halaman login
-            document.getElementById('login-page').style.display = 'flex';
-            document.getElementById('main-dashboard').style.display = 'none';   
+            userSession = { user: user.email, role: role };
+            localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
+            
+            // checkSession akan dipicu otomatis oleh onAuthStateChanged
+        } catch (error) {
+        console.log("FULL ERROR OBJECT:", error);
+        console.log("ERROR CODE:", error.code);
+        console.log("ERROR MESSAGE:", error.message);
+
+        alert(error.code + " | " + error.message);
+        } finally {
+            document.getElementById('loader').classList.add('hidden');
         }
-        lucide.createIcons();
     });
-}
+            function checkSession() {
+        // Memantau perubahan status login dari Firebase Auth
+        onAuthStateChanged(auth, (user) => {
+            const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
+            
+            // Cek apakah user sudah login di Firebase DAN ada data session di local
+            if (user && session) {
+                userSession = session;
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-dashboard').style.display = 'flex';
+                document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
+                
+                // Jalankan fungsi inisialisasi dashboard
+                populateTrainingForm(); 
+                updateCategoryUI(); 
+                switchTab('db'); 
+                syncFirebase();
+            } else {
+                // Jika tidak terdeteksi login, paksa kembali ke halaman login
+                document.getElementById('login-page').style.display = 'flex';
+                document.getElementById('main-dashboard').style.display = 'none';   
+            }
+            lucide.createIcons();
+        });
+    }
 
         window.exportToCSV = function() {
             let csv = "NAMA,NIK,SECTION,JABATAN,EXPIRED_DATE\n";
