@@ -605,7 +605,15 @@ import {
         
         // checkSession akan dipicu otomatis oleh onAuthStateChanged
     } catch (error) {
-        Swal.fire('Error', 'Login Gagal: Periksa Email/Password', 'error');
+    console.log("ERROR CODE:", error.code);
+    console.log("ERROR MESSAGE:", error.message);
+
+    Swal.fire(
+        'Login Error',
+        `${error.code} - ${error.message}`,
+        'error'
+    );
+}
     } finally {
         document.getElementById('loader').classList.add('hidden');
     }
