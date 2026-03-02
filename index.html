@@ -236,101 +236,6 @@
     </div> 
 
     <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, push, remove } 
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        // Konfigurasi dari gambar SDK Anda
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7K05jz-I0l0BghCJ2bc7dLylrRp_sbDM",
-            authDomain: "ppdcentrallink.firebaseapp.com",
-            databaseURL: "https://ppdcentrallink-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "ppdcentrallink",
-            storageBucket: "ppdcentrallink.firebasestorage.app",
-            messagingSenderId: "751370273574",
-            appId: "1:751370273574:web:eedb2684711d21fa1ef7e7",
-            measurementId: "G-WK9VMZ0BME"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db_fire = getDatabase(app);
-        const auth = getAuth(app);
-
-        // Global variables
-        const TRAINING_DICT = [
-            {id:"A4219", t:"General Safety Induction"}, {id:"A4265", t:"Radio Communication"},
-            {id:"A2611", t:"Escort Procedure"}, {id:"WK086", t:"Escort Commander"},
-            {id:"A2562", t:"Confined Space"}, {id:"A2588", t:"Working at Height"},
-            {id:"A2515", t:"Manual Handling"}, {id:"A2508", t:"First Aid"},
-            {id:"A2519", t:"Safety Inspection"}, {id:"A2638", t:"Hazard Identification"},
-            {id:"A2535", t:"JSA"}, {id:"A3040", t:"Incident Investigation"},
-            {id:"T0098", t:"Fire Fighter Type A"}, {id:"T0099", t:"Fire Fighter Type B"}
-        ];
-
-        window.db = [];
-        let logs = JSON.parse(localStorage.getItem('PPD_V7_LOGS')) || [];
-        let userSession = { user: "", role: "" };
-        let myChart = null;
-        let activeChartTr = "A4219";
-
-        // Sync data from Firebase
-        function syncFirebase() {
-            const dbRef = ref(db_fire, 'employees');
-            onValue(dbRef, (snapshot) => {
-                const data = snapshot.val();
-                window.db = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                renderTabel();
-                if (document.getElementById('view-chart').classList.contains('hidden') === false) renderChartAnalysis();
-                document.getElementById('cloud-status').innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Firebase Live';
-            });
-        }
-
-        // Functions Exposed to Global
-        window.saveData = async function() {
-            document.getElementById('loader').classList.remove('hidden');
-            const targetId = document.getElementById('editIndex').value;
-            const trChecked = Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value);
-            const now = new Date().toLocaleString('id-ID');
-            let oldData = targetId ? window.db.find(x => x.id == targetId) : {};
-
-            const obj = {
-                nama: document.getElementById('formNama').value.toUpperCase(),
-                nik: document.getElementById('formNIK').value,
-                exp: document.getElementById('formExp').value,
-                sec: document.getElementById('formSec').value,
-                jab: document.getElementById('formJab').value,
-                trs: trChecked,
-                foto: await processFile(document.getElementById('fileFoto').files[0], 350) || oldData.foto || "",
-                ktp: await processFile(document.getElementById('fileKTP').files[0], 800) || oldData.ktp || "",
-                sim: await processFile(document.getElementById('fileSIM').files[0], 800) || oldData.sim || "",
-                prm: await processFile(document.getElementById('filePermit').files[0], 800) || oldData.prm || "",
-                createdAt: oldData.createdAt || now,
-                updatedAt: now
-            };
-
-            try {
-                if(targetId) {
-                    await set(ref(db_fire, 'employees/' + targetId), obj);
-                    addLog(`Edit Data: ${obj.nama}`);
-                } else {
-                    const newRef = push(ref(db_fire, 'employees'));
-                    await set(newRef, obj);
-                    addLog(`Tambah Data: ${obj.nama}`);
-                }
-                closeModal();
-            } catch (e) {
-                Swal.fire('Error', 'Gagal simpan ke Firebase: ' + e.message, 'error');
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-            }
-        };
-
         window.deleteData = async function(id) {
             const k = window.db.find(x => x.id == id);
             const res = await Swal.fire({ title: 'Hapus Data?', text: "Data dihapus permanen dari Firebase!", icon: 'warning', showCancelButton: true });
@@ -370,7 +275,6 @@ import {
             };
             reader.readAsText(file);
         };
-
         // UI Core Logic (Tetap Sama)
         function addLog(action) {
             logs.unshift({ time: new Date().toLocaleString('id-ID'), user: userSession.user, action: action });
