@@ -605,14 +605,11 @@ import {
         
         // checkSession akan dipicu otomatis oleh onAuthStateChanged
     } catch (error) {
+    console.log("FULL ERROR OBJECT:", error);
     console.log("ERROR CODE:", error.code);
     console.log("ERROR MESSAGE:", error.message);
 
-    Swal.fire(
-        'Login Error',
-        `${error.code} - ${error.message}`,
-        'error'
-    );
+    alert(error.code + " | " + error.message);
 }
     } finally {
         document.getElementById('loader').classList.add('hidden');
