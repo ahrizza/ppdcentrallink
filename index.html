@@ -233,11 +233,12 @@
                 <iframe id="prevPdf" src="" class="w-full h-full hidden"></iframe>
             </div>
         </div>
-    </div>
+    </div> 
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; // Patch Baru
 
         // Konfigurasi dari gambar SDK Anda
         const firebaseConfig = {
@@ -253,6 +254,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db_fire = getDatabase(app);
+        const auth = getAuth(app);
 
         // Global variables
         const TRAINING_DICT = [
@@ -565,30 +567,67 @@
         window.toggleSubmenu = function() { document.getElementById('submenu-mon').classList.toggle('show'); document.getElementById('drop-icon').classList.toggle('rotate-180'); };
         window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); };
         window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('editIndex').value = ""; };
-        window.logout = function() { localStorage.removeItem('PPD_V7_SESSION'); location.reload(); };
+       window.logout = function() {
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    const auth = getAuth();
+    signOut(auth).then(() => {
+        localStorage.removeItem('PPD_V7_SESSION');
+        location.reload();
+    }).catch((error) => {
+        console.error("Logout Error:", error);
+    });
+};
         window.updateClock = function() { document.getElementById('liveClock').innerText = new Date().toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); };
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value, p = document.getElementById('password').value;
-            if(u === "Ahriza" && p === "ahriza123") userSession = { user: "Ahriza", role: "ADMIN" };
-            else if(u === "Guest" && p === "guest123") userSession = { user: "Guest", role: "GUEST" };
-            else return Swal.fire('Error', 'Login Gagal!', 'error');
-            localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
-            checkSession();
-        });
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('username').value; 
+    const password = document.getElementById('password').value;
+    
+    document.getElementById('loader').classList.remove('hidden');
 
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Logic penentuan Role minimal (Sesuaikan email admin Anda)
+        const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
+        
+        userSession = { user: user.email, role: role };
+        localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
+        
+        // checkSession akan dipicu otomatis oleh onAuthStateChanged
+    } catch (error) {
+        Swal.fire('Error', 'Login Gagal: Periksa Email/Password', 'error');
+    } finally {
+        document.getElementById('loader').classList.add('hidden');
+    }
+});
         function checkSession() {
-            const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
-            if(session) {
-                userSession = session;
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('main-dashboard').style.display = 'flex';
-                document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
-                populateTrainingForm(); updateCategoryUI(); switchTab('db'); syncFirebase();
-            }
-            lucide.createIcons();
+    // Memantau perubahan status login dari Firebase Auth
+    onAuthStateChanged(auth, (user) => {
+        const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
+        
+        // Cek apakah user sudah login di Firebase DAN ada data session di local
+        if (user && session) {
+            userSession = session;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-dashboard').style.display = 'flex';
+            document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
+            
+            // Jalankan fungsi inisialisasi dashboard
+            populateTrainingForm(); 
+            updateCategoryUI(); 
+            switchTab('db'); 
+            syncFirebase();
+        } else {
+            // Jika tidak terdeteksi login, paksa kembali ke halaman login
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('main-dashboard').style.display = 'none';
         }
+        lucide.createIcons();
+    });
+}
 
         window.exportToCSV = function() {
             let csv = "NAMA,NIK,SECTION,JABATAN,EXPIRED_DATE\n";
