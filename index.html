@@ -461,7 +461,7 @@ import {
                 const pass = window.db.filter(k => (k.trs || []).includes(t.id)).length;
                 const perc = window.db.length > 0 ? Math.round((pass / window.db.length) * 100) : 0;
                 return `
-                <div onclick="updateChart('${t.id}')" id="tr-card-${t.id}" class="tr-card p-4 rounded-2xl bg-white border cursor-pointer flex items-center justify-between group shadow-sm transition-all mb-2">
+                <div data-id="${t.id}" id="tr-card-${t.id}" class="tr-card p-4 rounded-2xl bg-white border cursor-pointer flex items-center justify-between group shadow-sm transition-all mb-2">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-[9px] group-hover:bg-blue-600">${t.id}</div>
                         <div><p class="text-[11px] font-black uppercase text-slate-800">${t.t}</p><p class="text-[8px] font-bold text-slate-400">${pass} Certified</p></div>
@@ -469,9 +469,11 @@ import {
                     <div class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">${perc}%</div>
                 </div>`;
             }).join('');
-            updateChart(activeChartTr);
-        };
-
+    document.querySelectorAll('.tr-card').forEach(card => {
+    card.addEventListener('click', function() {
+        updateChart(this.dataset.id);
+    });
+});
         window.renderMatrix = function() {
             const head = document.getElementById('matrix-head');
             const body = document.getElementById('matrix-body');
