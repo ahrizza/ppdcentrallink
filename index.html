@@ -324,8 +324,8 @@
             onAuthStateChanged(auth, (user) => {
                 const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
                 if (user && session) {
-                    applySecurity();
                     userSession = session;
+                    applySecurity();
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('main-dashboard').style.display = 'flex';
                   document.getElementById('user-role-badge').innerText = `ACCESS LEVEL: ${userSession.role}`;
