@@ -253,6 +253,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL }from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         // 2. CONFIG
         const firebaseConfig = {
@@ -270,6 +271,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db_fire = getDatabase(app);
+        const storage = getStorage(app);
 
         // Global Variables
         window.db = [];
@@ -604,23 +606,32 @@
         // INIT
         updateClock(); 
         setInterval(updateClock, 1000); 
-        window.saveData = async function() {
+   window.saveData = async function() {
 
     const id = document.getElementById('editIndex').value;
-
-    const data = {
-        nama: document.getElementById('formNama').value,
-        nik: document.getElementById('formNIK').value,
-        exp: document.getElementById('formExp').value,
-        sec: document.getElementById('formSec').value,
-        jab: document.getElementById('formJab').value,
-        trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value),
-        lastUpdate: new Date().toLocaleString()
-    };
+    const fotoFile = document.getElementById('fileFoto').files[0];
+    let fotoURL = "";
 
     document.getElementById('loader').classList.remove('hidden');
 
     try {
+
+        if(fotoFile){
+            const storageRef = sRef(storage, 'photos/' + Date.now() + "_" + fotoFile.name);
+            await uploadBytes(storageRef, fotoFile);
+            fotoURL = await getDownloadURL(storageRef);
+        }
+
+        const data = {
+            nama: document.getElementById('formNama').value,
+            nik: document.getElementById('formNIK').value,
+            exp: document.getElementById('formExp').value,
+            sec: document.getElementById('formSec').value,
+            jab: document.getElementById('formJab').value,
+            trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value),
+            foto: fotoURL,
+            lastUpdate: new Date().toLocaleString()
+        };
 
         if(id){
             await set(ref(db_fire, 'employees/' + id), data);
@@ -628,15 +639,9 @@
             await push(ref(db_fire, 'employees'), data);
         }
 
-      alert("Data berhasil disimpan!");
-
-document.getElementById('editIndex').value = "";
-
-// Tutup modal edit
-document.getElementById('modalForm').classList.add('hidden');
-
-// Kembali ke tab database
-switchTab('db');
+        alert("Data berhasil disimpan!");
+        document.getElementById('modalForm').classList.add('hidden');
+        switchTab('db');
 
     } catch(err){
         alert("Error: " + err.message);
@@ -644,6 +649,7 @@ switchTab('db');
         document.getElementById('loader').classList.add('hidden');
     }
 };
+
 window.exportData = function() {
     console.log("EXPORT DIKLIK");
 
