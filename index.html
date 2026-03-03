@@ -248,7 +248,7 @@
    <script type="module">
         // 1. IMPORT SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // 2. CONFIG
@@ -660,6 +660,50 @@ window.exportData = function() {
     link.href = URL.createObjectURL(blob);
     link.download = "PPD_Data_Export.csv";
     link.click();
+};
+window.deleteData = async function(id) {
+    console.log("DELETE DIKLIK:", id);
+
+    if(!confirm("Yakin hapus data ini?")) return;
+
+    try {
+        await remove(ref(db_fire, 'employees/' + id));
+        alert("Data berhasil dihapus!");
+    } catch(err){
+        alert("Error: " + err.message);
+    }
+};
+window.handleImport = function(input) {
+
+    const file = input.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+
+        const rows = e.target.result.split("\n").slice(1);
+
+        for(let row of rows){
+
+            const [nama, nik, sec, jab, exp] = row.split(",");
+
+            if(nama){
+                await push(ref(db_fire, 'employees'), {
+                    nama: nama.trim(),
+                    nik: nik.trim(),
+                    sec: sec.trim(),
+                    jab: jab.trim(),
+                    exp: exp.trim(),
+                    trs: []
+                });
+            }
+        }
+
+        alert("Import selesai!");
+    };
+
+    reader.readAsText(file);
 };
         checkSession();
     </script>
