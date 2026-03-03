@@ -270,7 +270,7 @@
 
         // Global Variables
         window.db = [];
-        let userSession = null;
+        window.userSession = null;
         let myChart = null;
         let activeChartTr = null;
         
@@ -324,11 +324,11 @@
             onAuthStateChanged(auth, (user) => {
                 const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
                 if (user && session) {
-                    userSession = session;
+                    window.userSession = session;
                     applySecurity();
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('main-dashboard').style.display = 'flex';
-                  document.getElementById('user-role-badge').innerText = `ACCESS LEVEL: ${userSession.role}`;
+                  document.getElementById('user-role-badge').innerText = `ACCESS LEVEL: ${window.userSession.role}`;
                     
                     // Initialize Dashboard
                     populateTrainingForm(); 
@@ -490,7 +490,7 @@
         };
 
         window.editData = function(id) {
-            if(!["EXECUTIVE","ADMIN"].includes(userSession.role)) {
+            if(!["EXECUTIVE","ADMIN"].includes(window.userSession.role)) {
             alert("Tidak punya akses edit.");
                return;
 }
@@ -551,7 +551,7 @@
 
        window.applySecurity = function() {
 
-    const role = userSession.role;
+    const role = window.userSession.role;
 
     const isExecutive = role === "EXECUTIVE";
     const isAdmin = role === "ADMIN";
@@ -575,7 +575,7 @@
         window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('editIndex').value = ""; };
         
         window.exportToCSV = function() {
-            if(!["EXECUTIVE","ADMIN"].includes(userSession.role)) {
+            if(!["EXECUTIVE","ADMIN"].includes(window.userSession.role)) {
              alert("Tidak punya akses export.");
               return;
             }
