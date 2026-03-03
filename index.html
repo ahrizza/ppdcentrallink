@@ -625,14 +625,41 @@
             await push(ref(db_fire, 'employees'), data);
         }
 
-        alert("Data berhasil disimpan!");
-        document.getElementById('editIndex').value = "";
+      alert("Data berhasil disimpan!");
+
+document.getElementById('editIndex').value = "";
+
+// Tutup modal edit
+document.getElementById('modalForm').classList.add('hidden');
+
+// Kembali ke tab database
+switchTab('db');
 
     } catch(err){
         alert("Error: " + err.message);
     } finally {
         document.getElementById('loader').classList.add('hidden');
     }
+};
+window.exportData = function() {
+
+    if(!window.db || window.db.length === 0){
+        alert("Tidak ada data untuk diexport.");
+        return;
+    }
+
+    let csv = "Nama,NIK,Section,Jabatan,Expired\n";
+
+    window.db.forEach(item => {
+        csv += `"${item.nama}","${item.nik}","${item.sec}","${item.jab}","${item.exp}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "PPD_Data_Export.csv";
+    link.click();
 };
         checkSession();
     </script>
