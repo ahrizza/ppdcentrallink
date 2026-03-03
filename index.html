@@ -298,7 +298,7 @@
               else if(email === "admin@ppd.com") {  
                      role = "ADMIN";
             }     
-                userSession = { user: userCredential.user.email, role: role };
+                window.userSession = { user: userCredential.user.email, role: role };
                 localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
                 checkSession();
             } catch (error) {
@@ -601,6 +601,23 @@
         // INIT
         updateClock(); 
         setInterval(updateClock, 1000); 
+        window.saveData = async function() {
+
+    const id = document.getElementById('editIndex').value;
+
+    const data = {
+        nama: document.getElementById('formNama').value,
+        nik: document.getElementById('formNIK').value,
+        exp: document.getElementById('formExp').value,
+        sec: document.getElementById('formSec').value,
+        jab: document.getElementById('formJab').value,
+        trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value)
+    };
+
+    console.log("DATA DIKIRIM:", data);
+
+    alert("Function saveData sudah aktif.");
+};
         checkSession();
     </script>
 </body>
