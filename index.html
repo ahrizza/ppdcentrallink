@@ -248,7 +248,7 @@
    <script type="module">
         // 1. IMPORT SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // 2. CONFIG
@@ -611,12 +611,28 @@
         exp: document.getElementById('formExp').value,
         sec: document.getElementById('formSec').value,
         jab: document.getElementById('formJab').value,
-        trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value)
+        trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value),
+        lastUpdate: new Date().toLocaleString()
     };
 
-    console.log("DATA DIKIRIM:", data);
+    document.getElementById('loader').classList.remove('hidden');
 
-    alert("Function saveData sudah aktif.");
+    try {
+
+        if(id){
+            await set(ref(db_fire, 'employees/' + id), data);
+        } else {
+            await push(ref(db_fire, 'employees'), data);
+        }
+
+        alert("Data berhasil disimpan!");
+        document.getElementById('editIndex').value = "";
+
+    } catch(err){
+        alert("Error: " + err.message);
+    } finally {
+        document.getElementById('loader').classList.add('hidden');
+    }
 };
         checkSession();
     </script>
