@@ -79,7 +79,7 @@
                         <div onclick="switchTab('matrix')" class="py-3 text-[10px] text-slate-500 hover:text-blue-400 cursor-pointer font-black uppercase tracking-widest">• Training Matrix</div>
                     </div>
                 </div>
-                <div onclick="viewLogs()" class="admin-only flex items-center gap-4 p-4 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer font-bold text-[11px] uppercase">
+                <div onclick="viewLogs()" class="executive-only flex items-center gap-4 p-4 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer font-bold text-[11px] uppercase">
                     <i data-lucide="history" class="w-4 h-4"></i> Log Activity
                 </div>
             </nav>
@@ -291,7 +291,13 @@
 
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
+                let role = "GUEST";
+                if(email === "ahriza@admin.com") {
+                     role = "EXECUTIVE";
+            }
+              else if(email === "admin@ppd.com") {  
+                     role = "ADMIN";
+            }     
                 userSession = { user: userCredential.user.email, role: role };
                 localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
                 checkSession();
@@ -318,10 +324,11 @@
             onAuthStateChanged(auth, (user) => {
                 const session = JSON.parse(localStorage.getItem('PPD_V7_SESSION'));
                 if (user && session) {
+                    applySecurity();
                     userSession = session;
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('main-dashboard').style.display = 'flex';
-                    document.getElementById('user-role-badge').innerText = `Role: ${userSession.role}`;
+                  document.getElementById('user-role-badge').innerText = `ACCESS LEVEL: ${userSession.role}`;
                     
                     // Initialize Dashboard
                     populateTrainingForm(); 
@@ -483,6 +490,10 @@
         };
 
         window.editData = function(id) {
+            if(!["EXECUTIVE","ADMIN"].includes(userSession.role)) {
+            alert("Tidak punya akses edit.");
+               return;
+}
             const k = window.db.find(x => x.id == id);
             openModal();
             document.getElementById('editIndex').value = id;
@@ -538,17 +549,36 @@
             document.getElementById('formJab').innerHTML = cat.jab.map(j => `<option value="${j}">${j}</option>`).join('');
         };
 
-        window.applySecurity = function() {
-            const isAdmin = userSession.role === 'ADMIN';
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
-            document.querySelectorAll('.guest-msg').forEach(el => el.style.display = isAdmin ? 'none' : 'block');
-        };
+       window.applySecurity = function() {
+
+    const role = userSession.role;
+
+    const isExecutive = role === "EXECUTIVE";
+    const isAdmin = role === "ADMIN";
+    const isGuest = role === "GUEST";
+
+    // Executive & Admin bisa lihat tombol admin-only
+    document.querySelectorAll('.admin-only')
+        .forEach(el => el.style.display = (isExecutive || isAdmin) ? 'flex' : 'none');
+
+    // Khusus Executive (log activity)
+    document.querySelectorAll('.executive-only')
+        .forEach(el => el.style.display = isExecutive ? 'flex' : 'none');
+
+    // Guest message
+    document.querySelectorAll('.guest-msg')
+        .forEach(el => el.style.display = isGuest ? 'block' : 'none');
+};
 
         window.toggleSubmenu = function() { document.getElementById('submenu-mon').classList.toggle('show'); document.getElementById('drop-icon').classList.toggle('rotate-180'); };
         window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); };
         window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('editIndex').value = ""; };
         
         window.exportToCSV = function() {
+            if(!["EXECUTIVE","ADMIN"].includes(userSession.role)) {
+             alert("Tidak punya akses export.");
+              return;
+            }
             let csv = "NAMA,NIK,SECTION,JABATAN,EXPIRED_DATE\n";
             window.db.forEach(k => csv += `"${k.nama}","${k.nik}","${k.sec}","${k.jab}","${k.exp}"\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
