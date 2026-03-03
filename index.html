@@ -253,7 +253,7 @@
 
         // 2. CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyB7K05jz-IOlOBghCJ2bc7dLylrRp_sbDM",
+            apiKey: "AIzaSyDenEgMUI26nXwYsF7MYogdf4akuoVnm58",
             authDomain: "ppdcentrallink.firebaseapp.com",
             databaseURL:  "https://ppdcentrallink-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "ppdcentrallink",
@@ -294,6 +294,7 @@
                 const role = (email === "ahriza@admin.com") ? "ADMIN" : "GUEST";
                 userSession = { user: userCredential.user.email, role: role };
                 localStorage.setItem('PPD_V7_SESSION', JSON.stringify(userSession));
+                checkSession();
             } catch (error) {
                 console.error("Login Error:", error);
                 alert("Login Gagal: " + error.message);
