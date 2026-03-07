@@ -684,7 +684,15 @@ await set(ref(db_fire,'employees/'+id), data);
 await push(ref(db_fire,'employees'), data);
 }
 
-alert("Data berhasil disimpan!");
+Swal.fire({
+    title: 'Berhasil!',
+    text: 'Data telah disinkronisasi ke Cloud Firebase.',
+    icon: 'success',
+    confirmButtonText: 'Mantap',
+    confirmButtonColor: '#3b82f6', // Warna biru sesuai tema PPD
+    background: '#ffffff',
+    borderRadius: '24px'
+});
 document.getElementById('modalForm').classList.add('hidden');
 
 }catch(err){
@@ -717,6 +725,27 @@ window.exportData = function() {
     link.click();
 };
 window.deleteData = async function(id) {
+    window.deleteData = async function(id) {
+    const result = await Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await remove(ref(db_fire, 'employees/' + id));
+            Swal.fire('Terhapus!', 'Data berhasil dihilangkan.', 'success');
+        } catch(err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    }
+};
     console.log("DELETE DIKLIK:", id);
 
     if(!confirm("Yakin hapus data ini?")) return;
