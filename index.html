@@ -289,7 +289,6 @@
         window.currentPage = 1;
         window.rowsPerPage = 10;
         window.userSession = null;
-        let myChart = null;
         let activeChartTr = null;
         
         // Placeholder Data (Jika belum ada di Firebase)
@@ -539,12 +538,12 @@ window.updateStatsBar = function() {
 
         // 10. UI HELPERS
         window.switchTab = function(tab) {
-    // Sembunyikan semua view utama
+    // 1. Sembunyikan semua section
     document.getElementById('view-db').classList.add('hidden');
     document.getElementById('view-chart').classList.add('hidden');
     document.getElementById('view-matrix').classList.add('hidden');
     
-    // Tampilkan view yang dipilih
+    // 2. Tampilkan yang dipilih & panggil fungsinya
     if (tab === 'db') {
         document.getElementById('view-db').classList.remove('hidden');
         document.getElementById('view-title').innerText = "Database Karyawan";
@@ -552,18 +551,12 @@ window.updateStatsBar = function() {
     } else if (tab === 'chart') {
         document.getElementById('view-chart').classList.remove('hidden');
         document.getElementById('view-title').innerText = "Monitoring: Chart Training";
-        
-        // PANGGIL FUNGSI INI AGAR DATA MUNCUL
-        renderChartAnalysis(); 
-        // Optional: Update chart pertama secara otomatis (misal training ID 'T01')
+        renderChartAnalysis(); // Pastikan fungsi ini ada
         if (TRAINING_DICT.length > 0) updateChart(TRAINING_DICT[0].id);
-        
     } else if (tab === 'matrix') {
         document.getElementById('view-matrix').classList.remove('hidden');
         document.getElementById('view-title').innerText = "Monitoring: Training Matrix";
-        
-        // PANGGIL FUNGSI INI AGAR TABEL MATRIX MUNCUL
-        renderMatrix();
+        renderMatrix(); // Pastikan fungsi ini ada
     }
     
     if(window.lucide) lucide.createIcons();
