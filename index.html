@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PPD CENTRAL LINK v.01 - Real-Time</title>
@@ -149,11 +150,12 @@
                 </div>
 
 <div id="pagination-container" class="flex items-center justify-between px-10 py-6 bg-white border-t border-slate-100 rounded-b-[32px]">
-    <p id="pagination-info" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-        Showing 0 to 0 of 0 results
-    </p>
-    <div id="pagination-controls" class="flex gap-2">
-        </div>
+        <p id="pagination-info" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Showing 0 to 0 of 0 results
+        </p>
+        <div id="pagination-controls" class="flex gap-2"></div>
+    </div>
+</div> <div id="view-chart" class="hidden ...">
 </div>
                 <!-- View: Chart -->
                 <div id="view-chart" class="hidden grid grid-cols-12 gap-8 items-start">
@@ -282,6 +284,7 @@
         const storage = getStorage(app);
 
         // Global Variables
+        let myChart = null;
         window.db = [];
         window.currentPage = 1;
         window.rowsPerPage = 10;
@@ -536,27 +539,35 @@ window.updateStatsBar = function() {
 
         // 10. UI HELPERS
         window.switchTab = function(tab) {
-            const views = ['view-db', 'view-chart', 'view-matrix', 'stats-row', 'action-area'];
-            views.forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById('search-container').style.display = tab === 'chart' ? 'none' : 'block';
-            if(tab === 'chart') { 
-                document.getElementById('view-chart').classList.remove('hidden'); 
-                document.getElementById('view-title').innerText = "Chart Training";
-                renderChartAnalysis(); 
-            }
-            else if(tab === 'db') { 
-                ['view-db', 'stats-row', 'action-area'].forEach(v => document.getElementById(v).classList.remove('hidden')); 
-                document.getElementById('view-title').innerText = "Database Karyawan";
-                renderTabel(); 
-            }
-            else if(tab === 'matrix') { 
-                document.getElementById('view-matrix').classList.remove('hidden'); 
-                document.getElementById('view-title').innerText = "Training Matrix Profile";
-                renderMatrix(); 
-            }
-            lucide.createIcons();
-        };
-
+    // Sembunyikan semua view utama
+    document.getElementById('view-db').classList.add('hidden');
+    document.getElementById('view-chart').classList.add('hidden');
+    document.getElementById('view-matrix').classList.add('hidden');
+    
+    // Tampilkan view yang dipilih
+    if (tab === 'db') {
+        document.getElementById('view-db').classList.remove('hidden');
+        document.getElementById('view-title').innerText = "Database Karyawan";
+        renderTabel();
+    } else if (tab === 'chart') {
+        document.getElementById('view-chart').classList.remove('hidden');
+        document.getElementById('view-title').innerText = "Monitoring: Chart Training";
+        
+        // PANGGIL FUNGSI INI AGAR DATA MUNCUL
+        renderChartAnalysis(); 
+        // Optional: Update chart pertama secara otomatis (misal training ID 'T01')
+        if (TRAINING_DICT.length > 0) updateChart(TRAINING_DICT[0].id);
+        
+    } else if (tab === 'matrix') {
+        document.getElementById('view-matrix').classList.remove('hidden');
+        document.getElementById('view-title').innerText = "Monitoring: Training Matrix";
+        
+        // PANGGIL FUNGSI INI AGAR TABEL MATRIX MUNCUL
+        renderMatrix();
+    }
+    
+    if(window.lucide) lucide.createIcons();
+};
         window.editData = function(id) {
             if(!["EXECUTIVE","ADMIN"].includes(window.userSession.role)) {
             alert("Tidak punya akses edit.");
