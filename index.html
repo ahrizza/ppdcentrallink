@@ -281,8 +281,8 @@
         
         // Placeholder Data (Jika belum ada di Firebase)
         const TRAINING_DICT = [
-            {id: 'A1', t: 'Safety Induction'}, {id: 'A2', t: 'Fire Fighting'}, 
-            {id: 'B1', t: 'First Aid'}, {id: 'B2', t: 'Confined Space'},
+            {id: 'A4219', t: 'General Safety Induction'}, {id: 'A2638', t: 'Hazard Identification'}, 
+            {id: 'WK022', t: 'Personal Lock Holder'}, {id: 'B2', t: 'Confined Space'},
             {id: 'C1', t: 'Heavy Equip'}, {id: 'C2', t: 'Driving License'}
         ];
         const logs = [];
@@ -549,7 +549,7 @@
         };
 
         window.updateCategoryUI = function() {
-            const cat = { sec: ["Track A2B", "Wheel A2B", "Support", "Maintenance", "HSE"], jab: ["Mekanik 1", "Mekanik 2", "Foreman", "Supervisor", "Admin"] };
+            const cat = { sec: ["TRACK A2B", "WHEEL A2B", "SUPPORT & AUXILIARY", "SSE", "WELDER", "TYRE", "WHEEL DT", "PLANT ENGINEER", "PLANT PEOPLE DEVELOPMENT", "MANAGEMENT", "BASE CONTROL"], jab: ["MEKANIK", "PLANT ENGINEER", "GROUP LEADER", "SECTION HEAD", "ADMIN", "OPERATOR WT", "OPERATOR LT", "MECHANIC HELPER"] };
             document.getElementById('formSec').innerHTML = cat.sec.map(s => `<option value="${s}">${s}</option>`).join('');
             document.getElementById('formJab').innerHTML = cat.jab.map(j => `<option value="${j}">${j}</option>`).join('');
         };
