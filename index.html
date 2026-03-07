@@ -540,6 +540,26 @@
             });
         }
 
+        async function uploadCloudinary(file){
+
+const formData = new FormData();
+formData.append("file", file);
+formData.append("upload_preset", "ppd_upload");
+formData.append("folder","ppd_files");
+
+const res = await fetch(
+"https://api.cloudinary.com/v1_1/dsewyasfh/auto/upload",
+{
+method: "POST",
+body: formData
+});
+
+const data = await res.json();
+
+return data.secure_url;
+
+}
+
         window.populateTrainingForm = function() {
             document.getElementById('training-form-list').innerHTML = TRAINING_DICT.map(t => `
                 <label class="flex items-center gap-3 bg-white p-3 rounded-2xl cursor-pointer border hover:border-blue-500 transition-all">
@@ -606,49 +626,74 @@
         // INIT
         updateClock(); 
         setInterval(updateClock, 1000); 
-   window.saveData = async function() {
+ window.saveData = async function() {
 
-    const id = document.getElementById('editIndex').value;
-    const fotoFile = document.getElementById('fileFoto').files[0];
-    let fotoURL = "";
+const id = document.getElementById('editIndex').value;
 
-    document.getElementById('loader').classList.remove('hidden');
+const fotoFile = document.getElementById('fileFoto').files[0];
+const ktpFile = document.getElementById('fileKTP').files[0];
+const simFile = document.getElementById('fileSIM').files[0];
+const permitFile = document.getElementById('filePermit').files[0];
 
-    try {
+let fotoURL = "";
+let ktpURL = "";
+let simURL = "";
+let prmURL = "";
 
-        if(fotoFile){
-            const storageRef = sRef(storage, 'photos/' + Date.now() + "_" + fotoFile.name);
-            await uploadBytes(storageRef, fotoFile);
-            fotoURL = await getDownloadURL(storageRef);
-        }
+document.getElementById('loader').classList.remove('hidden');
 
-        const data = {
-            nama: document.getElementById('formNama').value,
-            nik: document.getElementById('formNIK').value,
-            exp: document.getElementById('formExp').value,
-            sec: document.getElementById('formSec').value,
-            jab: document.getElementById('formJab').value,
-            trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value),
-            foto: fotoURL,
-            lastUpdate: new Date().toLocaleString()
-        };
+try{
+// FOTO
+if(fotoFile){
+const processedFoto = await processFile(fotoFile,800);
+fotoURL = await uploadCloudinary(processedFoto);
+}
 
-        if(id){
-            await set(ref(db_fire, 'employees/' + id), data);
-        } else {
-            await push(ref(db_fire, 'employees'), data);
-        }
+// KTP
+if(ktpFile){
+ktpURL = await uploadCloudinary(ktpFile);
+}
 
-        alert("Data berhasil disimpan!");
-        document.getElementById('modalForm').classList.add('hidden');
-        switchTab('db');
+// SIM
+if(simFile){
+simURL = await uploadCloudinary(simFile);
+}
 
-    } catch(err){
-        alert("Error: " + err.message);
-    } finally {
-        document.getElementById('loader').classList.add('hidden');
-    }
+// PERMIT
+if(permitFile){
+prmURL = await uploadCloudinary(permitFile);
+}
+
+const data = {
+nama: document.getElementById('formNama').value,
+nik: document.getElementById('formNIK').value,
+exp: document.getElementById('formExp').value,
+sec: document.getElementById('formSec').value,
+jab: document.getElementById('formJab').value,
+trs: Array.from(document.querySelectorAll('input[name="tr"]:checked')).map(c => c.value),
+foto: fotoURL,
+ktp: ktpURL,
+sim: simURL,
+prm: prmURL,
+lastUpdate: new Date().toLocaleString()
 };
+
+if(id){
+await set(ref(db_fire,'employees/'+id), data);
+}else{
+await push(ref(db_fire,'employees'), data);
+}
+
+alert("Data berhasil disimpan!");
+document.getElementById('modalForm').classList.add('hidden');
+
+}catch(err){
+alert("Error: "+err.message);
+}
+finally{
+document.getElementById('loader').classList.add('hidden');
+}
+}
 
 window.exportData = function() {
     console.log("EXPORT DIKLIK");
