@@ -470,50 +470,6 @@ window.updateStatsBar = function() {
     document.getElementById('stat-warn').innerText = s.w;
     document.getElementById('stat-exp').innerText = s.e;
 };
-
-            window.db.forEach((k) => {
-                const diff = k.exp ? Math.ceil((new Date(k.exp) - new Date().setHours(0,0,0,0)) / 86400000) : -999;
-                let stat = {t:"NO DATA", c:"bg-slate-100 text-slate-400"};
-                s.t++;
-                if(diff < 0) { stat = {t:"EXPIRED", c:"bg-rose-50 text-rose-600"}; s.e++; }
-                else if(diff <= 90) { stat = {t:`WARN: ${diff}D`, c:"bg-amber-50 text-amber-600"}; s.w++; }
-                else { stat = {t:`SAFE: ${diff}D`, c:"bg-emerald-50 text-emerald-600"}; s.a++; }
-
-                if(k.nama.toLowerCase().includes(search) || String(k.nik).includes(search)) {
-                    body.innerHTML += `
-                        <tr class="hover:bg-blue-50/50 transition-all">
-                            <td class="p-6 text-center"><img src="${k.foto || 'https://via.placeholder.com/80x100'}" class="foto-frame mx-auto" onclick="previewFile('${k.foto}', '${k.nama}')"></td>
-                            <td class="p-6">
-                                <p class="font-black text-slate-800 uppercase text-[12px] tracking-tighter">${k.nama}</p>
-                                <p class="text-blue-600 font-bold text-[10px] tracking-widest">${k.nik}</p>
-                                <span class="text-[9px] bg-slate-100 px-2 py-0.5 rounded uppercase font-black text-slate-400 mt-2 inline-block">${k.sec} | ${k.jab}</span>
-                            </td>
-                            <td class="p-6 text-center"><span class="status-badge ${stat.c}">${stat.t}</span><p class="text-[9px] font-bold text-slate-400 mt-2 italic">Exp: ${k.exp || '-'}</p></td>
-                            <td class="p-6">
-                                <div class="flex flex-col gap-1 text-[9px] font-black uppercase">
-                                    <button onclick="previewFile('${k.ktp}', 'KTP - ${k.nama}')" class="${k.ktp?'text-blue-600':'text-slate-200'} text-left hover:underline">VIEW KTP</button>
-                                    <button onclick="previewFile('${k.sim}', 'SIM - ${k.nama}')" class="${k.sim?'text-amber-600':'text-slate-200'} text-left hover:underline">VIEW SIM</button>
-                                    <button onclick="previewFile('${k.prm}', 'Permit - ${k.nama}')" class="${k.prm?'text-emerald-600':'text-slate-200'} text-left hover:underline">VIEW PERMIT PDF</button>
-                                </div>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex gap-2 justify-center">
-                                    <button onclick="editData('${k.id}')" class="admin-only w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                    <button onclick="deleteData('${k.id}')" class="admin-only w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                    <span class="guest-msg hidden text-slate-300 font-black text-[9px]">READ ONLY</span>
-                                </div>
-                            </td>
-                        </tr>`;
-                }
-            });
-            document.getElementById('stat-total').innerText = s.t;
-            document.getElementById('stat-safe').innerText = s.a;
-            document.getElementById('stat-warn').innerText = s.w;
-            document.getElementById('stat-exp').innerText = s.e;
-            applySecurity();
-            lucide.createIcons();
-        };
-
         // 9. CHART FUNCTIONS
         window.updateChart = function(trId) {
             document.querySelectorAll('.tr-card').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-50'));
@@ -832,7 +788,6 @@ window.exportData = function() {
     link.click();
 };
 window.deleteData = async function(id) {
-    window.deleteData = async function(id) {
     const result = await Swal.fire({
         title: 'Apakah Anda yakin?',
         text: "Data yang dihapus tidak bisa dikembalikan!",
@@ -851,17 +806,6 @@ window.deleteData = async function(id) {
         } catch(err) {
             Swal.fire('Error', err.message, 'error');
         }
-    }
-};
-    console.log("DELETE DIKLIK:", id);
-
-    if(!confirm("Yakin hapus data ini?")) return;
-
-    try {
-        await remove(ref(db_fire, 'employees/' + id));
-        alert("Data berhasil dihapus!");
-    } catch(err){
-        alert("Error: " + err.message);
     }
 };
 window.handleImport = function(input) {
